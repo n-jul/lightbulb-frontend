@@ -5,7 +5,7 @@ import UserDashboard from './UserDashboard';
 
 const DashboardPage = () => {
   // In a real app, you'd get these from your auth context/state
-  const [userRole] = useState('super_admin'); // Can be 'super_admin', 'admin', or 'practice_user'
+  const [userRole] = useState('practice_user'); // Can be 'super_admin', 'admin', or 'practice_user'
   const [userEmail] = useState('john@example.com');
   
   // Sample campaigns data
@@ -36,7 +36,7 @@ const DashboardPage = () => {
               <h1 className="text-2xl font-bold text-blue-600">LIGHTBULB</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Welcome, {userRole.replace('_', ' ')}</span>
+              <span className="text-gray-600">Welcome, {userEmail}</span>
               <button className="text-gray-600 hover:text-gray-900">Logout</button>
             </div>
           </div>
