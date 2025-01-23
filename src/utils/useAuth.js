@@ -1,13 +1,13 @@
-import { login, logout } from "../store/authSlice";
+import { setUserData,clearUserData } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 const useAuth = () =>{
   const dispatch = useDispatch();
   const handleLogout = () => {
-    dispatch(logout())
+    dispatch(clearUserData())
   };
 
   const handleLogin = () =>{
-    dispatch(login())
+    dispatch(setUserData())
   }
   return {handleLogin, handleLogout}
 }

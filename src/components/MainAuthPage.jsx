@@ -3,8 +3,11 @@ import { useState } from "react";
 import SignUpPage from "./SignUp";
 import LoginPage from "./Login";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../store/authSlice";
 const AuthPage = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [isSignUp, setIsSignUp] = useState(true);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -43,11 +46,14 @@ const AuthPage = () => {
       });
 
       if (response.ok) {
-        const result = await response.json()
+        const data = await response.json()
         if(isSignUp){
             navigate("/auth")
         }
         else{
+          const username = formData.username
+          const role = data.role
+          dispatch(setUserData({username,role}))
           navigate("/dashboard")
         }
       } else {

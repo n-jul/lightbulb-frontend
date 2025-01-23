@@ -4,10 +4,11 @@ import AdminDashboard from "./AdminDashboard";
 import UserDashboard from "./UserDashboard";
 import useAuth from "../utils/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 const DashboardPage = () => {
-  // In a real app, you'd get these from your auth context/state
-  const [userRole] = useState("practice_user"); // Can be 'super_admin', 'admin', or 'practice_user'
-  const [userEmail] = useState("john@example.com");
+  const {username, role} = useSelector((state)=>state.auth)
+  const [userRole] = useState(role); // Can be 'super_admin', 'admin', or 'practice_user'
+  const [userName] = useState(username);
   const navigate = useNavigate()
   const {handleLogout} = useAuth()
   const handleSubmit = () => {
@@ -42,7 +43,7 @@ const DashboardPage = () => {
               <h1 className="text-2xl font-bold text-blue-600">LIGHTBULB</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Welcome, {userEmail}</span>
+              <span className="text-gray-600">Welcome, {userName}</span>
               <button
                 className="text-gray-600 hover:text-gray-900"
                 onClick={handleSubmit}
@@ -61,7 +62,7 @@ const DashboardPage = () => {
         )}
         {userRole === "admin" && <AdminDashboard campaigns={campaigns} />}
         {userRole === "practice_user" && (
-          <UserDashboard campaigns={campaigns} userEmail={userEmail} />
+          <UserDashboard campaigns={campaigns} userName={userName} />
         )}
       </main>
     </div>
