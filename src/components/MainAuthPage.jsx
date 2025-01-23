@@ -5,9 +5,10 @@ import LoginPage from "./Login";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../store/authSlice";
+import Cookies from "js-cookie";
 const AuthPage = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isSignUp, setIsSignUp] = useState(true);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -46,15 +47,17 @@ const AuthPage = () => {
       });
 
       if (response.ok) {
-        const data = await response.json()
-        if(isSignUp){
-            navigate("/auth")
-        }
-        else{
-          const username = formData.username
-          const role = data.role
-          dispatch(setUserData({username,role}))
-          navigate("/dashboard")
+        const data = await response.json();
+        if (isSignUp) {
+          navigate("/auth");
+        } else {
+          const username = formData.username;
+          const role = data.role;
+          
+          Cookies.set("access_token", data.access, { expires: 1 });
+          Cookies.set("refresh_token", data.refresh, { expires: 7 });
+          dispatch(setUserData({ username, role }));
+          navigate("/dashboard");
         }
       } else {
         console.error("Error:", response.statusText);
@@ -75,9 +78,13 @@ const AuthPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
         <div className="text-center">
-          <h2 className="text-4xl font-extrabold text-blue-600 mb-2">LIGHTBULB</h2>
+          <h2 className="text-4xl font-extrabold text-blue-600 mb-2">
+            LIGHTBULB
+          </h2>
           <p className="text-sm text-gray-600 mb-8">
-            {isSignUp ? "Join us to illuminate your path" : "Welcome back to your journey"}
+            {isSignUp
+              ? "Join us to illuminate your path"
+              : "Welcome back to your journey"}
           </p>
         </div>
 

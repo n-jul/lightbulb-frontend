@@ -57,7 +57,7 @@ const DashboardPage = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4">
-        {userRole === "super_admin" && (
+        {userRole === "superadmin" && (
           <SuperAdminDashboard campaigns={campaigns} />
         )}
         {userRole === "admin" && <AdminDashboard campaigns={campaigns} />}
