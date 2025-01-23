@@ -1,13 +1,19 @@
-import { useState } from 'react';
-import SuperAdminDashboard from './SuperAdminDashboard';
-import AdminDashboard from './AdminDashboard';
-import UserDashboard from './UserDashboard';
-
+import { useState } from "react";
+import SuperAdminDashboard from "./SuperAdminDashboard";
+import AdminDashboard from "./AdminDashboard";
+import UserDashboard from "./UserDashboard";
+import useAuth from "../utils/useAuth";
+import { useNavigate } from "react-router-dom";
 const DashboardPage = () => {
   // In a real app, you'd get these from your auth context/state
-  const [userRole] = useState('practice_user'); // Can be 'super_admin', 'admin', or 'practice_user'
-  const [userEmail] = useState('john@example.com');
-  
+  const [userRole] = useState("practice_user"); // Can be 'super_admin', 'admin', or 'practice_user'
+  const [userEmail] = useState("john@example.com");
+  const navigate = useNavigate()
+  const {handleLogout} = useAuth()
+  const handleSubmit = () => {
+    handleLogout();
+    navigate("/auth")
+  };
   // Sample campaigns data
   const [campaigns] = useState([
     {
@@ -15,15 +21,15 @@ const DashboardPage = () => {
       name: "Q1 Marketing Campaign",
       description: "First quarter marketing initiatives",
       status: "Active",
-      targetUsers: ["john@example.com", "jane@example.com"]
+      targetUsers: ["john@example.com", "jane@example.com"],
     },
     {
       id: 2,
       name: "Product Launch",
       description: "New product feature announcement",
       status: "Draft",
-      targetUsers: ["john@example.com"]
-    }
+      targetUsers: ["john@example.com"],
+    },
   ]);
 
   return (
@@ -37,7 +43,12 @@ const DashboardPage = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-600">Welcome, {userEmail}</span>
-              <button className="text-gray-600 hover:text-gray-900">Logout</button>
+              <button
+                className="text-gray-600 hover:text-gray-900"
+                onClick={handleSubmit}
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -45,9 +56,11 @@ const DashboardPage = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4">
-        {userRole === 'super_admin' && <SuperAdminDashboard campaigns={campaigns} />}
-        {userRole === 'admin' && <AdminDashboard campaigns={campaigns} />}
-        {userRole === 'practice_user' && (
+        {userRole === "super_admin" && (
+          <SuperAdminDashboard campaigns={campaigns} />
+        )}
+        {userRole === "admin" && <AdminDashboard campaigns={campaigns} />}
+        {userRole === "practice_user" && (
           <UserDashboard campaigns={campaigns} userEmail={userEmail} />
         )}
       </main>
