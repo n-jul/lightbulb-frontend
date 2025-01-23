@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-const SuperAdminDashboard = ({ campaigns }) => {
+const SuperAdminDashboard = () => {
+  const [campaigns, setCampaign] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
   const [formData, setFormData] = useState({
     type: "",
@@ -8,6 +9,36 @@ const SuperAdminDashboard = ({ campaigns }) => {
     description: "",
   });
 
+  //  fetching campaigns created by this superuser
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      const token = Cookies.get("access_token");
+      if (!token) {
+        console.error("Access token not found");
+        return;
+      }
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8000/campaign/api/campaigns/",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setCampaign(data);
+        } else {
+          console.error("Error fetching campaigns:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+    fetchCampaigns();
+  }, []);
   // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +62,7 @@ const SuperAdminDashboard = ({ campaigns }) => {
       const token = Cookies.get("access_token");
       if (!token) {
         console.error("Token not found in cookies");
-        
+
         return;
       }
       console.log(token);
@@ -43,7 +74,7 @@ const SuperAdminDashboard = ({ campaigns }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Add the Bearer token
           },
-          body: JSON.stringify(payload), 
+          body: JSON.stringify(payload),
         }
       );
 
@@ -81,7 +112,8 @@ const SuperAdminDashboard = ({ campaigns }) => {
             <div key={campaign.id} className="border rounded p-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <h4 className="font-medium">{campaign.name}</h4>
+                  <h4 className="font-medium">{campaign.type}</h4>
+                  <h4 className="font-medium">{campaign.text}</h4>
                   <p className="text-gray-600">{campaign.description}</p>
                 </div>
                 <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
