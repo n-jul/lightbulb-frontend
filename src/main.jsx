@@ -11,8 +11,9 @@ import {
 import MainAuthPage from "./components/MainAuthPage.jsx";
 import DashboardPage from "./components/MainDashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import store from "./store/index.js";
+import {store,persistor} from "./store/index.js";
 import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/lib/integration/react.js";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -32,7 +33,10 @@ const router = createBrowserRouter(
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+    <PersistGate loading={null} persistor={persistor}>
+    <RouterProvider router={router} />
+    </PersistGate>
+      
     </Provider>
   </StrictMode>
 );
