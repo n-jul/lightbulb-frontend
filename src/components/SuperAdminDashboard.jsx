@@ -1,103 +1,64 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
+import EditCampaignForm from "./EditCampaignForm"; // Import the new component
+
 const SuperAdminDashboard = () => {
   const [campaigns, setCampaign] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
-  const [formData, setFormData] = useState({
-    type: "",
-    title: "",
-    description: "",
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
 
-  //  fetching campaigns created by this superuser
-  useEffect(() => {
-    const fetchCampaigns = async () => {
-      const token = Cookies.get("access_token");
-      if (!token) {
-        console.error("Access token not found");
-        return;
-      }
-      try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/campaign/api/campaigns/",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setCampaign(data);
-        } else {
-          console.error("Error fetching campaigns:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-    fetchCampaigns();
-  }, []);
-  // Handle form input change
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Transform `title` to `text` before sending
-    const payload = {
-      ...formData,
-      text: formData.title, // Map `title` to `text`
-    };
-    delete payload.title; // Remove `title` key from payload
-
-    console.log("Payload:", payload);
+  // Fetch campaigns
+  const fetchCampaigns = async () => {
+    const token = Cookies.get("access_token");
+    if (!token) {
+      console.error("Access token not found");
+      return;
+    }
 
     try {
-      // Retrieve the token from cookies
-      const token = Cookies.get("access_token");
-      if (!token) {
-        console.error("Token not found in cookies");
-
-        return;
-      }
-      console.log(token);
-      const response = await fetch(
-        "http://127.0.0.1:8000/campaign/api/campaigns/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Add the Bearer token
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch("http://127.0.0.1:8000/campaign/api/campaigns/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.ok) {
-        console.log("Campaign created successfully!");
-        setIsModalOpen(false); // Close modal
-        setFormData({ type: "", title: "", description: "" }); // Reset form
+        const data = await response.json();
+        setCampaign(data);
       } else {
-        console.error("Error creating campaign:", response.statusText);
+        console.error("Error fetching campaigns:", response.statusText);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  // Function to refresh the campaign list after updating
+  const refreshCampaigns = () => {
+    fetchCampaigns();
+  };
+
+  // Handle opening edit form
+  const openEditForm = (campaign) => {
+    setSelectedCampaign(campaign);
+    setIsModalOpen(true); // Open the modal
+  };
+  const openCreateForm = () =>{
+    setSelectedCampaign(null)
+    setIsModalOpen(true)
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Campaign Management
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900">Campaign Management</h2>
         <button
-          onClick={() => setIsModalOpen(true)} // Open modal
+          onClick={openCreateForm} // Open modal for creating new campaign
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Create New Campaign
@@ -109,104 +70,35 @@ const SuperAdminDashboard = () => {
         <h3 className="text-lg font-medium mb-4">Existing Campaigns</h3>
         <div className="space-y-4">
           {campaigns.map((campaign) => (
-            <div key={campaign.id} className="border rounded p-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-medium">{campaign.type}</h4>
-                  <h4 className="font-medium">{campaign.text}</h4>
-                  <p className="text-gray-600">{campaign.description}</p>
+            <button
+              key={campaign.id}
+              onClick={() => openEditForm(campaign)} // Open edit form for the selected campaign
+              className="w-full text-left"
+            >
+              <div className="border rounded p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-medium">{campaign.type}</h4>
+                    <h4 className="font-medium">{campaign.text}</h4>
+                    <p className="text-gray-600">{campaign.description}</p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                    {campaign.status}
+                  </span>
                 </div>
-                <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                  {campaign.status}
-                </span>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Show the EditCampaignForm modal if it's open */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-1/3">
-            <h3 className="text-lg font-medium mb-4">Create New Campaign</h3>
-            <form onSubmit={handleSubmit}>
-              {/* Type Field */}
-              <div className="mb-4">
-                <label
-                  htmlFor="type"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Type
-                </label>
-                <input
-                  type="text"
-                  name="type"
-                  id="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              {/* Title Field */}
-              <div className="mb-4">
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Title
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  id="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              {/* Description Field */}
-              <div className="mb-4">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  id="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  rows="4"
-                  required
-                ></textarea>
-              </div>
-
-              {/* Modal Buttons */}
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)} // Close modal
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 mr-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditCampaignForm
+          selectedCampaign={selectedCampaign}
+          setIsModalOpen={setIsModalOpen}
+          refreshCampaigns={refreshCampaigns}
+        />
       )}
     </div>
   );
