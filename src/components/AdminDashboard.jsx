@@ -51,8 +51,36 @@ const AdminDashboard = () => {
   };
 
   // Handle send options
-  const handleSendEmail = (campaignId) => {
-    console.log(`Send Email for Campaign ID: ${campaignId}`);
+  const handleSendEmail = async (campaignId) => {
+    const payload = {
+      campaign_id:campaignId,
+      on_email:true
+    }
+    const token = Cookies.get("access_token");
+    if (!token) {
+      console.error("Access token not found.");
+      return;
+    }
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/campaign/api/send_email/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+      if(response.ok){
+        console.log("Campaign sent to users.");  
+      } else{
+        console.error("Error sending campaign to users in email.",response.statusText)
+      }
+    } catch (error) {
+      console.error("Error", error);
+    }
   };
 
   const handleSendMessage = (campaignId) => {
