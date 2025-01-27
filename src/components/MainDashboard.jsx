@@ -58,11 +58,11 @@ const DashboardPage = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4">
         {userRole === "superadmin" && (
-          <SuperAdminDashboard campaigns={campaigns} />
+          <SuperAdminDashboard/>
         )}
-        {userRole === "admin" && <AdminDashboard campaigns={campaigns} />}
-        {userRole === "practice_user" && (
-          <UserDashboard campaigns={campaigns} userName={userName} />
+        {userRole === "admin" && <AdminDashboard/>}
+        {userRole === "user" && (
+          <UserDashboard />
         )}
       </main>
     </div>
