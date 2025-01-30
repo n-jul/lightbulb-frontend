@@ -1,10 +1,15 @@
 import Cookies from "js-cookie";
+import {DateTime} from "luxon"
 import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css"; // Don't forget to import the CSS for the date picker
 
 const AdminDashboard = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [selectedCampaign, setSelectedCampaign] = useState(null); // For modal
   const [isModalOpen, setIsModalOpen] = useState(false); // To toggle the modal
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false); // To toggle the schedule modal
+  const [selectedDate, setSelectedDate] = useState(null); // Store the selected date
 
   // Fetch campaigns
   const fetchCampaigns = async () => {
@@ -121,6 +126,45 @@ const AdminDashboard = () => {
     }
   };
 
+  // Handle schedule campaign
+  const handleScheduleCampaign = async () => {
+    if (!selectedDate) {
+      console.error("Please select a date and time.");
+      return;
+    }
+    const formattedDate = DateTime.fromJSDate(selectedDate).toISO(); 
+    const payload = {
+      campaign_id: selectedCampaign.id,
+      scheduled_date: formattedDate, // Convert to ISO string for the backend
+    };
+    const token = Cookies.get("access_token");
+    if (!token) {
+      console.error("Access token not found.");
+      return;
+    }
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/campaign/api/schedule_campaign/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (response.ok) {
+        console.log("Campaign scheduled successfully.");
+        setIsScheduleModalOpen(false); // Close the modal after scheduling
+      } else {
+        console.error("Error scheduling campaign:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error", error);
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Campaigns</h2>
@@ -154,13 +198,56 @@ const AdminDashboard = () => {
                 >
                   Send in Message
                 </button>
+                <button
+                  className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                  onClick={() => {
+                    setSelectedCampaign(campaign);
+                    setIsScheduleModalOpen(true);
+                  }}
+                >
+                  Schedule
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal for scheduling */}
+      {isScheduleModalOpen && selectedCampaign && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <h3 className="text-lg font-bold mb-4">Schedule Campaign</h3>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2">Select Date and Time</label>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                showTimeSelect
+                dateFormat="Pp"
+                minDate={new Date()}
+                className="px-4 py-2 border rounded-md w-full"
+              />
+            </div>
+            <div className="flex justify-end space-x-4">
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                onClick={handleScheduleCampaign}
+              >
+                Schedule
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                onClick={() => setIsScheduleModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for campaign details */}
       {isModalOpen && selectedCampaign && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg p-6 w-96">
