@@ -16,7 +16,7 @@ const AuthPage = () => {
     email: "",
     password: "",
     username: "",
-    role: "practice_user",
+    practice:"",
   });
 
   const handleSubmit = async (e) => {
@@ -38,7 +38,7 @@ const AuthPage = () => {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 username: formData.username,
-                role: formData.role,
+                practice: formData.practice,
               }
             : {
                 username: formData.username,
@@ -49,7 +49,8 @@ const AuthPage = () => {
       if (response.ok) {
         const data = await response.json();
         if (isSignUp) {
-          navigate("/auth");
+          console.log("user created successfully...");
+          navigate("/dashboard");
         } else {
           const username = formData.username;
           const role = data.role;
