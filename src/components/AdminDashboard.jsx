@@ -3,12 +3,15 @@ import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // Don't forget to import the CSS for the date picker
+import EditCampaignForm from "./EditCampaignForm"; // Make sure to import the EditCampaignForm
 
 const AdminDashboard = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [selectedCampaign, setSelectedCampaign] = useState(null); // For modal
   const [isModalOpen, setIsModalOpen] = useState(false); // To toggle the modal
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false); // To toggle the schedule modal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Modal state for create campaign
+
   const [selectedDate, setSelectedDate] = useState(null); // Store the selected date
 
   const [activeTab, setActiveTab] = useState("superadmins"); // Track which tab is active
@@ -46,6 +49,9 @@ const AdminDashboard = () => {
     fetchCampaigns();
   }, []);
 
+  const refreshCampaigns = () => {
+    fetchCampaigns();
+  };
   // Open modal and set the selected campaign
   const openModal = (campaign) => {
     setSelectedCampaign(campaign);
@@ -177,17 +183,33 @@ const AdminDashboard = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Campaigns</h2>
-
+      {/* Add Campaign Button */}
+      <div className="mb-6">
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={() => setIsCreateModalOpen(true)} // Open create campaign modal
+        >
+          Create Campaign
+        </button>
+      </div>
       {/* Tabs */}
       <div className="flex space-x-4 mb-6">
         <button
-          className={`px-4 py-2 rounded ${activeTab === "superadmins" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-700"}`}
+          className={`px-4 py-2 rounded ${
+            activeTab === "superadmins"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-300 text-gray-700"
+          }`}
           onClick={() => setActiveTab("superadmins")}
         >
           Created by Superadmins
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === "you" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-700"}`}
+          className={`px-4 py-2 rounded ${
+            activeTab === "you"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-300 text-gray-700"
+          }`}
           onClick={() => setActiveTab("you")}
         >
           Created by You
@@ -245,7 +267,9 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-lg p-6 w-96">
             <h3 className="text-lg font-bold mb-4">Schedule Campaign</h3>
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Select Date and Time</label>
+              <label className="block text-gray-700 mb-2">
+                Select Date and Time
+              </label>
               <DatePicker
                 selected={selectedDate}
                 onChange={(date) => setSelectedDate(date)}
@@ -309,6 +333,14 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+      )}
+      {/* Modal for creating/editing campaigns */}
+      {(isCreateModalOpen) && (
+        <EditCampaignForm
+          selectedCampaign={selectedCampaign} // Pass selectedCampaign for editing, null for creating new campaign
+          setIsModalOpen={setIsCreateModalOpen} // Toggle modal state
+          refreshCampaigns={refreshCampaigns} // Refresh the campaigns list after submit
+        />
       )}
     </div>
   );
