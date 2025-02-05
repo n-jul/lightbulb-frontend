@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import {DateTime} from "luxon"
+import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // Don't forget to import the CSS for the date picker
@@ -11,6 +11,8 @@ const AdminDashboard = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false); // To toggle the schedule modal
   const [selectedDate, setSelectedDate] = useState(null); // Store the selected date
 
+  const [activeTab, setActiveTab] = useState("superadmins"); // Track which tab is active
+
   // Fetch campaigns
   const fetchCampaigns = async () => {
     const token = Cookies.get("access_token");
@@ -20,7 +22,7 @@ const AdminDashboard = () => {
     }
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/campaign/api/send_email/",
+        "http://127.0.0.1:8000/campaign/api/campaigns/",
         {
           method: "GET",
           headers: {
@@ -30,6 +32,7 @@ const AdminDashboard = () => {
       );
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setCampaigns(data);
       } else {
         console.error("Error fetching campaigns:", response.statusText);
@@ -132,7 +135,7 @@ const AdminDashboard = () => {
       console.error("Please select a date and time.");
       return;
     }
-    const formattedDate = DateTime.fromJSDate(selectedDate).toISO(); 
+    const formattedDate = DateTime.fromJSDate(selectedDate).toISO();
     const payload = {
       campaign_id: selectedCampaign.id,
       scheduled_date: formattedDate, // Convert to ISO string for the backend
@@ -165,12 +168,35 @@ const AdminDashboard = () => {
     }
   };
 
+  // Filter campaigns based on the active tab
+  const filteredCampaigns =
+    activeTab === "superadmins"
+      ? campaigns.filter((campaign) => campaign.admin_id === null)
+      : campaigns.filter((campaign) => campaign.admin_id !== null);
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Campaigns</h2>
+
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-6">
+        <button
+          className={`px-4 py-2 rounded ${activeTab === "superadmins" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-700"}`}
+          onClick={() => setActiveTab("superadmins")}
+        >
+          Created by Superadmins
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${activeTab === "you" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-700"}`}
+          onClick={() => setActiveTab("you")}
+        >
+          Created by You
+        </button>
+      </div>
+
       <div className="bg-white shadow rounded-lg p-6">
         <div className="space-y-4">
-          {campaigns.map((campaign) => (
+          {filteredCampaigns.map((campaign) => (
             <div
               key={campaign.id}
               className="border rounded p-4 flex justify-between items-center"
