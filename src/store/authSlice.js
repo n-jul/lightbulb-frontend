@@ -4,7 +4,8 @@ const authSlice = createSlice({
     initialState:{
         isAuthenticated:false,
         username: null,
-        role: null
+        role: null,
+        practices : []
     },
     reducers:{
         setUserData:(state,action)=>{
@@ -16,9 +17,12 @@ const authSlice = createSlice({
             state.username = null
             state.role = null
             state.isAuthenticated = false
+        },
+        setStorePractices:(state,action)=>{
+            state.practices = action.payload
         }
     }
 })
-export const {setUserData,clearUserData} = authSlice.actions
+export const {setUserData,clearUserData,setStorePractices} = authSlice.actions
 
 export default authSlice.reducer

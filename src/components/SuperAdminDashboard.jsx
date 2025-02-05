@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import EditCampaignForm from "./EditCampaignForm"; // Import the new component
+import CampaignList from "./CampaignList";
+import EditCampaignForm from "./EditCampaignForm";
+import SendCampaignModal from "./SendCampaignModal";
 
 const SuperAdminDashboard = () => {
-  const [campaigns, setCampaign] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [campaigns, setCampaigns] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
 
   // Fetch campaigns
@@ -18,14 +21,12 @@ const SuperAdminDashboard = () => {
     try {
       const response = await fetch("http://127.0.0.1:8000/campaign/api/campaigns/", {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCampaign(data);
+        setCampaigns(data);
       } else {
         console.error("Error fetching campaigns:", response.statusText);
       }
@@ -38,66 +39,54 @@ const SuperAdminDashboard = () => {
     fetchCampaigns();
   }, []);
 
-  // Function to refresh the campaign list after updating
-  const refreshCampaigns = () => {
-    fetchCampaigns();
+  // Open Create Campaign Form
+  const openCreateForm = () => {
+    setSelectedCampaign(null);
+    setIsEditModalOpen(true);
   };
 
-  // Handle opening edit form
+  // Open Edit Form
   const openEditForm = (campaign) => {
     setSelectedCampaign(campaign);
-    setIsModalOpen(true); // Open the modal
+    setIsEditModalOpen(true);
   };
-  const openCreateForm = () =>{
-    setSelectedCampaign(null)
-    setIsModalOpen(true)
-  }
+
+  // Open Send Modal
+  const openSendModal = (campaign) => {
+    setSelectedCampaign(campaign);
+    setIsSendModalOpen(true);
+  };
 
   return (
     <div>
+      {/* Header with Create Campaign Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Campaign Management</h2>
         <button
-          onClick={openCreateForm} // Open modal for creating new campaign
+          onClick={openCreateForm} // Opens modal for creating a new campaign
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Create New Campaign
         </button>
       </div>
 
-      {/* Existing Campaigns */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium mb-4">Existing Campaigns</h3>
-        <div className="space-y-4">
-          {campaigns.map((campaign) => (
-            <button
-              key={campaign.id}
-              onClick={() => openEditForm(campaign)} // Open edit form for the selected campaign
-              className="w-full text-left"
-            >
-              <div className="border rounded p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium">{campaign.type}</h4>
-                    <h4 className="font-medium">{campaign.text}</h4>
-                    <p className="text-gray-600">{campaign.description}</p>
-                  </div>
-                  <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                    {campaign.status}
-                  </span>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Campaign List */}
+      <CampaignList campaigns={campaigns} openEditForm={openEditForm} openSendModal={openSendModal} />
 
-      {/* Show the EditCampaignForm modal if it's open */}
-      {isModalOpen && (
+      {/* Edit/Create Campaign Modal */}
+      {isEditModalOpen && (
         <EditCampaignForm
           selectedCampaign={selectedCampaign}
-          setIsModalOpen={setIsModalOpen}
-          refreshCampaigns={refreshCampaigns}
+          setIsModalOpen={setIsEditModalOpen}
+          refreshCampaigns={fetchCampaigns}
+        />
+      )}
+
+      {/* Send Campaign Modal */}
+      {isSendModalOpen && (
+        <SendCampaignModal
+          selectedCampaign={selectedCampaign}
+          setIsModalOpen={setIsSendModalOpen}
         />
       )}
     </div>

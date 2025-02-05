@@ -15,24 +15,6 @@ const DashboardPage = () => {
     handleLogout();
     navigate("/auth")
   };
-  // Sample campaigns data
-  const [campaigns] = useState([
-    {
-      id: 1,
-      name: "Q1 Marketing Campaign",
-      description: "First quarter marketing initiatives",
-      status: "Active",
-      targetUsers: ["john@example.com", "jane@example.com"],
-    },
-    {
-      id: 2,
-      name: "Product Launch",
-      description: "New product feature announcement",
-      status: "Draft",
-      targetUsers: ["john@example.com"],
-    },
-  ]);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}

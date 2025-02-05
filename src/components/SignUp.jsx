@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { FormInput } from "./FormInput";
-
+import { setStorePractices } from "../store/authSlice";
+import { useDispatch } from "react-redux";
 const SignUpPage = ({ formData, handleChange, handleSubmit }) => {
   const [practices, setPractices] = useState([]);
   const [selectedPractice, setSelectedPractice] = useState("");
+  const dispatch = useDispatch()
   useEffect(() => {
     async function fetchPractices() {
       try {
         const response = await fetch("http://127.0.0.1:8000/users/api/practice/");
         const data = await response.json();
-        console.log("Fetched practices:", data, Array.isArray(data)); 
-        setPractices(Array.isArray(data) ? data : data.practices || []);
+        console.log("Fetched practices:", data, Array.isArray(data));
+        const practiceList = Array.isArray(data) ? data : data.practices || []; 
+        setPractices(practiceList);
+        dispatch(setStorePractices(practiceList))
       } catch (error) {
         console.error("Error fetching practices:", error);
         setPractices([]);
