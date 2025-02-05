@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
+import DeleteButton from "./DeleteButton";
 import "react-datepicker/dist/react-datepicker.css"; // Don't forget to import the CSS for the date picker
 import EditCampaignForm from "./EditCampaignForm"; // Make sure to import the EditCampaignForm
 
@@ -255,6 +256,11 @@ const AdminDashboard = () => {
                 >
                   Schedule
                 </button>
+                {/* ✅ Delete Button Component */}
+                <DeleteButton
+                  campaignId={campaign.id}
+                  onDeleteSuccess={fetchCampaigns}
+                />
               </div>
             </div>
           ))}
@@ -335,7 +341,7 @@ const AdminDashboard = () => {
         </div>
       )}
       {/* Modal for creating/editing campaigns */}
-      {(isCreateModalOpen) && (
+      {isCreateModalOpen && (
         <EditCampaignForm
           selectedCampaign={selectedCampaign} // Pass selectedCampaign for editing, null for creating new campaign
           setIsModalOpen={setIsCreateModalOpen} // Toggle modal state

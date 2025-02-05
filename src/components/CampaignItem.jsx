@@ -1,4 +1,6 @@
-const CampaignItem = ({ campaign, openEditForm, openSendModal }) => {
+import DeleteButton from "./DeleteButton";
+import fetchCampaign from "./DataFetch"
+const CampaignItem = ({ campaign, openEditForm, openSendModal, fetchCampaigns }) => {
     return (
       <div className="border rounded p-4 flex justify-between items-center">
         <div>
@@ -25,6 +27,11 @@ const CampaignItem = ({ campaign, openEditForm, openSendModal }) => {
           >
             Send
           </button>
+          {/* ✅ Delete Button Component */}
+          <DeleteButton
+                campaignId={campaign.id}
+                onDeleteSuccess={fetchCampaigns}
+              />
         </div>
       </div>
     );

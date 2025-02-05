@@ -71,7 +71,7 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* Campaign List */}
-      <CampaignList campaigns={campaigns} openEditForm={openEditForm} openSendModal={openSendModal} />
+      <CampaignList campaigns={campaigns} fetchCampaigns={fetchCampaigns} openEditForm={openEditForm} openSendModal={openSendModal} />
 
       {/* Edit/Create Campaign Modal */}
       {isEditModalOpen && (
