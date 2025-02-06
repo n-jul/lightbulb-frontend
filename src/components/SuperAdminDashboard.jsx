@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCampaigns } from "../store/campaignSlice";
-import Cookies from "js-cookie";
+import { fetchCampaigns, setPagination } from "../store/campaignSlice";
 import CampaignList from "./CampaignList";
 import EditCampaignForm from "./EditCampaignForm";
 import SendCampaignModal from "./SendCampaignModal";
@@ -10,14 +9,22 @@ const SuperAdminDashboard = () => {
   const dispatch = useDispatch();
   const campaigns = useSelector((state) => state.campaigns.list);
   const status = useSelector((state) => state.campaigns.status);
+  const currentPage = useSelector((state) => state.campaigns.currentPage);
+  const totalPages = useSelector((state) => state.campaigns.totalPages);
+  const pageSize = useSelector((state) => state.campaigns.pageSize);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchCampaigns());
-  }, [dispatch]);
+    dispatch(fetchCampaigns({ page: currentPage, page_size: pageSize }));
+  }, [dispatch,currentPage, pageSize]);
 
+  const handlePageChange = (newPage) => {
+    if (newPage > 0  && newPage !== currentPage) {
+      dispatch(setPagination({ page: newPage, page_size: pageSize }));
+    }
+  };
   // Open Create Campaign Form
   const openCreateForm = () => {
     setSelectedCampaign(null);
@@ -59,6 +66,26 @@ const SuperAdminDashboard = () => {
         openEditForm={openEditForm}
         openSendModal={openSendModal}
       />
+      {/* Pagination */}
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 text-black rounded"
+        >
+          Previous
+        </button>
+        <span className="mx-2">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || status === "loading"}
+          className="px-4 py-2 bg-gray-300 text-black rounded"
+        >
+          Next
+        </button>
+      </div>
 
       {/* Edit/Create Campaign Modal */}
       {isEditModalOpen && (
