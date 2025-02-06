@@ -1,6 +1,6 @@
 import CampaignItem from "./CampaignItem";
 import { useState } from "react";
-const CampaignList = ({ campaigns,fetchCampaigns, openEditForm, openSendModal }) => {
+const CampaignList = ({ campaigns,openEditForm, openSendModal }) => {
   const [activeTab, setActiveTab] = useState("superadmins");
   const filteredCampaigns =
     activeTab === "superadmins"
@@ -38,7 +38,6 @@ const CampaignList = ({ campaigns,fetchCampaigns, openEditForm, openSendModal })
             campaign={campaign}
             openEditForm={openEditForm}
             openSendModal={openSendModal}
-            fetchCampaigns={fetchCampaigns}
           />
         ))}
       </div>

@@ -1,8 +1,10 @@
 import { useState } from "react";
+import {useDispatch} from "react-redux"
+import {removeCampaign} from "../store/campaignSlice"
 import Cookies from "js-cookie"
 const DeleteButton = ({ campaignId, onDeleteSuccess}) => {
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch()
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this campaign?")) {
       return;
@@ -25,7 +27,11 @@ const DeleteButton = ({ campaignId, onDeleteSuccess}) => {
 
       if (response.ok) {
         alert("Campaign deleted successfully!");
-        onDeleteSuccess(campaignId);
+        if(onDeleteSuccess){
+          onDeleteSuccess(campaignId)
+        }else{
+          dispatch(removeCampaign(campaignId))
+        }
       } else {
         const data = await response.json();
         alert(data.message || "Failed to delete campaign.");
